@@ -23,3 +23,19 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 
 ## Day 2
 
+### part i
+
+- line = reports, reports = list[level: int]
+- are each reports *safe*?
+    - iterate through each list
+    - check delta for safe requirement
+- count number of safe reports
+
+### part ii
+
+- problem dampener
+- allows removal of a single level
+- as for-loop iterates through report, allow one bad level
+- if report[n] was *tolerated*, next delta is between report[n-1] and report[n+1]
+- need to check 0th element
+- run another pass, but in reverse
