@@ -39,3 +39,24 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - if report[n] was *tolerated*, next delta is between report[n-1] and report[n+1]
 - need to check 0th element
 - run another pass, but in reverse
+
+## Day 3
+
+### part i
+
+- uncorrupted: `mul(int1,int2)`
+- corrupted: any other character
+- sum all uncorrupted mults
+- simple regex? `r'mul\([0-9]{1,3},[0-9]{1,3}\)`
+
+### part ii
+
+- conditional
+    - do() enables future mul ops
+    - and don't() disables future mul ops
+- mul ops are enabled from the beginning
+- recalculate sum
+- add `r'do\(\)'` and `r'don't\(\)'` to regex
+- find all segments between `do` and `don't`
+- include initial segment, `^` to first `don't`
+- include last segment of `do()` and `$`
