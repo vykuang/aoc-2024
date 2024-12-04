@@ -58,5 +58,9 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - recalculate sum
 - add `r'do\(\)'` and `r'don't\(\)'` to regex
 - find all segments between `do` and `don't`
+- take `start` and `span` from match
 - include initial segment, `^` to first `don't`
 - include last segment of `do()` and `$`
+- splitting segments this way returned too high of an answer
+- `findall()` with a pattern that finds both mul, do, and don't returns all hit sequentially
+- allows iteration to flip enable/disable while summing the muls
