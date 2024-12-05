@@ -101,5 +101,16 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
     - order of updates
 - determine which updates are correctly ordered according to rules
 - from correct order, sum the middle page numbers
+- a lot of lookups coming from update section
+- for 75, lookup rules containing 75
+    - for each rule, `re.match()` to see whether index follows the rules
+- to build rules:
+    - for each rule, `a|b`, add 2 entries rules[a]['post'] and rules[b]['pre'] 
+    - `b` must be after `a`, so rules[a]['post'].append(b)
+    - conversely, rules[b]['pre'].append(a)
 
 ### part ii
+
+- fix the incorrectly ordered updates
+- sum the newly corrected updates middle page numbers
+
