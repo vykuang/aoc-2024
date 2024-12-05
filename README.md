@@ -64,3 +64,42 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - splitting segments this way returned too high of an answer
 - `findall()` with a pattern that finds both mul, do, and don't returns all hit sequentially
 - allows iteration to flip enable/disable while summing the muls
+- split approach:
+    - split by don't()
+    - process all of first segment
+    - for all remaining, find first instance of do() with re.search()
+    - process from that point on to end of segment
+
+## Day 4 word search
+
+### part i
+
+- grid of {X, M, A, S}
+- count horizontal, vertical, diag, forward, reverse
+- can overlap
+- look for all X as starts, iterating through rows and cols
+- search 8 dir
+- if M found, continue in same dir for A, S
+
+### part ii
+
+- look for X shaped MAS
+- starts with A
+- look at 4 diagonals for M, M, S, S
+- always look from top left, clockwise
+- rotate the mini 3x3 section clockwise before checking again
+- return True if MAS found
+- try next rotation if not
+- catch: make sure the corners are actually clockwise
+
+## Day 5 print queue
+
+### part i
+
+- input has 2 sections
+    - order rules
+    - order of updates
+- determine which updates are correctly ordered according to rules
+- from correct order, sum the middle page numbers
+
+### part ii

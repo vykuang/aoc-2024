@@ -34,8 +34,8 @@ def main(sample: bool, part_two: bool, loglevel: str):
     mems = "".join(line for line in read_line(fp))
     # execute
     ans = 0
+    p = re.compile(r"mul\((\d+),(\d+)\)")
     if not part_two:
-        p = re.compile(r"mul\((\d+),(\d+)\)")
         ans = reduce(memmul, p.finditer(mem), 0)
     else:
         pa = re.compile(r"mul\((\d+),(\d+)\)|(do\(\))|(don't\(\))")
@@ -48,42 +48,23 @@ def main(sample: bool, part_two: bool, loglevel: str):
                 # if only don't() found, bool(do) = False
                 # since do will be None
                 enable = bool(do)
-    return ans
 
-        # attempt to split the string was not successful
-        # answer too high
-    #     p_do = re.compile(r"do\(\)")
-    #     p_donot = re.compile(r"don't\(\)")
-    #     # find all indices of the two
-    #     idx_do = deque([m.end() for m in p_do.finditer(mems)])
-    #     idx_dn = deque([m.start() for m in p_donot.finditer(mems)])
-    #     logger.info(f'{idx_do} do() and {idx_dn} dont()')
-    #     # handle beginning as edge case
-    #     span = idx_dn.popleft()
-    #     ans = reduce(memmul, p.finditer(mems[:span]), ans)
-    #     logger.debug(f'first span {span} holds {ans}')
-    #     while idx_do:
-    #         # find do() after span
-    #         do = idx_do.popleft()
-    #         while idx_do and do < span:
-    #             logger.debug('discard do')
-    #             do = idx_do.popleft()
-    #         logger.debug(f'next start {do}')
-    #         dn = idx_dn.popleft()
-    #         while idx_dn and dn < do:
-    #             logger.debug('discard dont')
-    #             dn = idx_dn.popleft()
-    #         logger.debug(f'next span {dn}')
-    #         # process new span of do()
-    #         span = dn
-    #         ans = reduce(memmul, p.finditer(mems[do:span]), ans)
-    #         logger.debug(f'ans updated to {ans}')
-    #     if idx_do:
-    #         ans = reduce(memmul, p.finditer(mems[idx_do.pop():]), ans)
-    #     else:
-    #         logger.debug(f'mul disabled from {span}')    
-    # # output
-    # return ans
+        # split by "don't()"
+        # find first instance of "do()"
+        p_do = re.compile(r"do\(\)")
+        segments = mems.split("don't()")
+        logger.debug(f'segments\n{segments}')
+        # handle beginning as edge case since all are enabled
+        ans = reduce(memmul, p.finditer(segments[0]), 0)
+        for sgmt in segments[1:]:
+            if (do := p_do.search(sgmt)):
+                # .search() returns a match obj if hit; None if not found
+                enabled = sgmt[do.end():]
+                logger.debug(f'enabled: {enabled}')
+                logger.debug(f'do found at {do.start()}')
+                ans = reduce(memmul, p.finditer(enabled), ans)
+    # output
+    return ans
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
