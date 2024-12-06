@@ -113,4 +113,12 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 
 - fix the incorrectly ordered updates
 - sum the newly corrected updates middle page numbers
+- filter out incorrects from part i
+- iterate through each line
+    - at each page, check for u[j] in rules[page]['pre'], if j > i, or ['post'] if j < 1
+    - if exists, swap j and i
+    - nested for-loop at each line
 
+## Day 6
+
+### part i

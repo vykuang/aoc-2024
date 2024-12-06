@@ -42,7 +42,7 @@ def main(sample: bool, part_two: bool, loglevel: str):
     logger.debug(f'rules:\n{rules}')
     # read updates
     def is_valid(u: list[int]) -> bool:
-        """Assumes rules[pg] to exist"""
+        """Assumes rules[pg] exists"""
         for i, pg in enumerate(u):
             # check all both pre and post rules
             for chk in rules[pg]['pre']:
@@ -56,14 +56,29 @@ def main(sample: bool, part_two: bool, loglevel: str):
                 if u.index(chk) < i:
                     return False
         return True
-
+    def fix_update(u: list[int]) -> int:
+        """
+        O(n2) nested for loop
+        """
+        logger.debug(f'fixing line {u}')
+        for i in range(len(u)):
+            # for each pg, check all other pages for related rules
+            for j in range(len(u)):
+                if (j < i and u[j] in rules[u[i]]['post']) or (j > i and u[j] in rules[u[i]]['pre']):
+                    # swap
+                    u[i], u[j] = u[j], u[i]
+        return u[len(u) // 2]
     # execute
-    ans = 0
-    for line in lines:
-        u = eval('[' + line + ']')
-        ans += u[len(u) // 2] if is_valid(u) else 0
-
-            
+    if part_two:
+        fix = [u for line in lines if (u := eval('[' + line + ']'))
+                and not is_valid(u)]
+        ans = sum(fix_update(u) for u in fix)
+    else:
+        # ans = 0
+        # for line in lines:
+        #     u = eval('[' + line + ']')
+        #     ans += u[len(u) // 2] if is_valid(u) else 0
+        ans = sum(u[len(u) // 2] for line in lines if (u := eval('[' + line + ']')) and is_valid(u))
     # output
     return ans
 
