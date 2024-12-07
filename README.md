@@ -122,3 +122,20 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 ## Day 6
 
 ### part i
+
+- grid
+    - `.` - space
+    - `#` - wall
+    - `^` - guard and direction
+- guard always moves straight
+- when obs, turn CW 90deg
+- able to exit
+- count distinct pos visited before guard exist map
+- set() to collect distinct pos
+- array manipulation to look ahead to find next obs
+- our grid needs to be able to answer "is there any obstacle in this column or row, and if so where is it"
+- have two dicts? one for row, another for col
+- rowmap[row_n] = list[cols that contain obs]
+- colmap[col_n] = list[rows that contain obs], conversely
+- build as input is read
+- add in-between pos to set
