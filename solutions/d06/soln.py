@@ -46,12 +46,11 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
         if not pos and (m_g := p_g.search(line)):
             pos = Point(i, m_g.start())
     height, width = i, len(line)
-    #logger.debug(f'colmap\n{colmap}\nrowmap\n{rowmap}\nstart {pos_g}')
-    visited = set()
+    visited = set([pos])
     # real: row movement; imag: col movement; 0, -1 = -1j -> moving up
     dxy = complex(0, -1)
     # exit con: if guard is at the edge, they will always exit
-    while 0 < pos.row < height and 0 < pos.col < width:
+    while 0 < pos.row < height-1 and 0 < pos.col < width-1:
         # move the guard
         if dxy.real == -1:
             logger.debug('moving left')

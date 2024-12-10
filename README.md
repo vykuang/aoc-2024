@@ -139,3 +139,31 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - colmap[col_n] = list[rows that contain obs], conversely
 - build as input is read
 - add in-between pos to set
+- init set with starting pos
+
+### part ii
+
+- count coords where a new obs would cause a loop
+- always at locs where path crosses previously visited
+- can we simply count these crosses? that would overcount
+- keep track of directions: if crossing a prev path that was heading 90deg CW, increment count
+
+## Day 7 bridge repair
+
+### part i
+
+- each line is an equation
+- test value: list[ints]
+- use list of ints, and `+`, `*` to produce test val
+- always eval'd left to right
+- not all are possible
+- sum valid test values
+- use BFS? model as binary tree - each node has two children: `+` or `*` the next value of the array
+- if over, prune
+
+### part ii
+
+- add concatenation as an additional operator
+- implement as another possible child node
+
+## day 8
