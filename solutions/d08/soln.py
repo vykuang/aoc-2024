@@ -4,6 +4,8 @@ import argparse
 import logging
 import sys
 from time import time
+from collections import defaultdict
+from itertools import combinations
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -26,12 +28,36 @@ def main(sample: bool, part_two: bool, loglevel: str):
     logger.debug(f"loglevel: {loglevel}")
     logger.info(f'Using {fp} for {"part 2" if part_two else "part 1"}')
 
-    # read input
-
+    # read antenna map
+    antmap = defaultdict(list)
+    for i, line in enumerate(read_line(fp)):
+        for j, ch in enumerate(line.strip()):
+            if ch == '.':
+                continue
+            antmap[ch].append((i, j))
+    height, width = i, j
     # execute
+    def in_bounds(point: tuple) -> bool:
+        return 0 <= point[0] <= height and 0 <= point[1] <= width
 
+    locs = set()
+    for fr in antmap:
+        logger.debug(f'pairs for freq {fr}')
+        for aa, ab in combinations(antmap[fr], r=2):
+            logger.debug(f'pair {aa, ab}')
+            d = ab[0] - aa[0], ab[1] - aa[1]
+            a1 = aa[0] - d[0], aa[1] - d[1]
+            a2 = ab[0] + d[0], ab[1] + d[1]
+            logger.debug(f'a1 {a1} a2 {a2}')
+            if in_bounds(a1):
+                logger.debug('a1 in')
+                locs.add(a1)
+            if in_bounds(a2):
+                logger.debug('a2 in')
+                locs.add(a2)
+    logger.debug(f'antinodes {locs}')
+    ans = len(locs)
     # output
-    ans = None
     return ans
 
 if __name__ == "__main__":
@@ -44,5 +70,5 @@ if __name__ == "__main__":
     tstart = time()
     ans = main(args.sample, args.part_two, args.loglevel)
     tstop = time()
-    logger.info(f"runtime: {(tstop-tstart):.3f} ms")
+    logger.info(f"runtime: {(tstop-tstart)*1e3:.3f} ms")
     print('ans ', ans)

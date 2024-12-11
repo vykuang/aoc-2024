@@ -167,3 +167,21 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - implement as another possible child node
 
 ## day 8
+
+### part i
+
+- antennas denoted by all non-dot symbols
+- different char = different freq
+- two antennae of same freq creates two resonant antinodes
+- "where one antenna is twice is far away as the other"
+- locs with antenna can be an antinode
+- count unique antinodes within map
+- collect antenna locs
+- group by freq
+- create product of locs
+- prune those outside bounds
+- make set and count; 329
+
+### part ii
+
+
