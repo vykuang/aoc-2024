@@ -147,6 +147,8 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - always at locs where path crosses previously visited
 - can we simply count these crosses? that would overcount
 - keep track of directions: if crossing a prev path that was heading 90deg CW, increment count
+- crosses is not a sufficient condition, see ex 4-6 in sample input
+- for each new pos, check if there exists some prev path going to the right of current dir, and if there are any obs between pos and start of that nearest path segment
 
 ## Day 7 bridge repair
 
@@ -184,4 +186,10 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 
 ### part ii
 
-
+- resonant harmonics???
+- antinodes occur regardless of distance, not just when one antenna is twice as far as the other
+- for each pair combination, compare with map boundary
+- given a pair of antennae at (ar, ac), and (br, bc), and map boundary nr, nc:
+    - calc l-dist = (br - ar, bc - ac) = (dr, dc)
+    - how to determine the correct bound to check?
+    - since all antinode locs need to be hashed, use while loop and check for bounds every step

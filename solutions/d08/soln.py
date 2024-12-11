@@ -48,13 +48,23 @@ def main(sample: bool, part_two: bool, loglevel: str):
             d = ab[0] - aa[0], ab[1] - aa[1]
             a1 = aa[0] - d[0], aa[1] - d[1]
             a2 = ab[0] + d[0], ab[1] + d[1]
-            logger.debug(f'a1 {a1} a2 {a2}')
-            if in_bounds(a1):
-                logger.debug('a1 in')
-                locs.add(a1)
-            if in_bounds(a2):
-                logger.debug('a2 in')
-                locs.add(a2)
+            if part_two:
+                locs.add(aa)
+                locs.add(ab)
+                # also need to add locs of antenna itself
+                while in_bounds(a1):
+                    locs.add(a1)
+                    a1 = a1[0] - d[0], a1[1] - d[1]
+                while in_bounds(a2):
+                    locs.add(a2)
+                    a2 = a2[0] + d[0], a2[1] + d[1]
+            else:
+                if in_bounds(a1):
+                    logger.debug('a1 in')
+                    locs.add(a1)
+                if in_bounds(a2):
+                    logger.debug('a2 in')
+                    locs.add(a2)
     logger.debug(f'antinodes {locs}')
     ans = len(locs)
     # output

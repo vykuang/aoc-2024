@@ -20,7 +20,7 @@ def read_line(fpath: str):
         yield from f
 
 
-def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
+def main_one(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
     """ """
     logger.setLevel(loglevel)
     if not sample:
@@ -92,6 +92,55 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
     # output
     ans = len(visited)
     return ans
+
+def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
+    """ 
+    complex as coords
+    col as real (left and right), and row as imag;
+    as grid goes down, row incr, and imag comp increases
+    """
+    logger.setLevel(loglevel)
+    if not sample:
+        fp = "input.txt"
+    else:
+        fp = "sample.txt"
+    logger.debug(f"loglevel: {loglevel}")
+    logger.info(f'Using {fp} for {"part 2" if part_two else "part 1"}')
+
+    # read input
+    # execute
+    # find starting pos
+    p_obs = re.compile(r'#')
+    p_g = re.compile(r'\^')
+    obsmap = set()
+    pos = None
+    for i, line in enumerate(read_line(fp)):
+        m_obs = p_obs.finditer(line)
+        obsmap.update({complex(m.start(), i) for m in m_obs})
+        if not pos and (m_g := p_g.search(line)):
+            pos = complex(m_g.start(), i)
+            logger.debug(f'pos {pos}')
+    height, width = i, len(line)
+    logger.debug(f'height {height} width {width}')
+    # real: col movement; imag: row movement; 0, -1 = -1j -> moving up
+    dxy = complex(0, -1)
+    visited = defaultdict(set)
+    visited[pos].add(dxy)
+    # exit con: if guard is at the edge, they will always exit
+    cross = 0
+    while 0 < pos.imag < height and 0 < pos.real < width:
+        if pos + dxy in obsmap:
+            # turn right
+            logger.debug(f'obs at {pos + dxy}; turning right')
+            dxy /= -1j
+        pos += dxy
+        logger.debug(f'move to {pos}')
+        if pos in visited and dxy / -1j in visited[pos]:
+            logger.debug(f'cross at {pos}')
+            cross += 1
+        visited[pos].add(dxy)
+    logger.info(f'{cross} crosses')
+    return len(visited)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

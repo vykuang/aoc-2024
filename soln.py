@@ -44,5 +44,5 @@ if __name__ == "__main__":
     tstart = time()
     ans = main(args.sample, args.part_two, args.loglevel)
     tstop = time()
-    logger.info(f"runtime: {(tstop-tstart):.3f} ms")
+    logger.info(f"runtime: {(tstop-tstart)*1e3:.3f} ms")
     print('ans ', ans)
