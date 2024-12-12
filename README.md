@@ -149,7 +149,8 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - keep track of directions: if crossing a prev path that was heading 90deg CW, increment count
 - crosses is not a sufficient condition, see ex 4-6 in sample input
 - for each new pos, check if there exists some prev path going to the right of current dir, and if there are any obs between pos and start of that nearest path segment
-
+- record each segment when turning, or at the beginning
+- turning also marks the end of prev segment
 ## Day 7 bridge repair
 
 ### part i
