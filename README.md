@@ -194,3 +194,29 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
     - calc l-dist = (br - ar, bc - ac) = (dr, dc)
     - how to determine the correct bound to check?
     - since all antinode locs need to be hashed, use while loop and check for bounds every step
+
+## day 9 disk fragmenter
+
+### part i
+
+- input: `blocks-of-file blocks-of-space ...`
+- each file is 0-indexed
+- disk map `12345` = `0..111....22222` where digits rep file ID and . is free space
+- compact by bringing data from end of each line to left-most available empty block
+- start: `0..111....22222`
+- end:  `022111222......`
+- notice how files from ID=2 filled up space between file 0 and file 1
+- ans is checksum
+    - mul each block `pos` (0-indexed) with file ID contained
+    - return sum
+- expand the input from dense form? end up with a very long list...
+- two-pointers
+    - left to fill up the space
+    - right to move from the end
+    - if len(nums) is odd, last = file
+    - else take last-1
+    - file ID = len(nums) // 2
+    - take last file
+    - incr left and expand until enough space
+    - then take from end again and repeat
+    - keep expanded in mem? or mult and sum as it goes?

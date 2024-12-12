@@ -192,9 +192,6 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
     logger.debug(f"loglevel: {loglevel}")
     logger.info(f'Using {fp} for {"part 2" if part_two else "part 1"}')
 
-    # read input
-    # execute
-    # find starting pos
     p_obs = re.compile(r'#')
     p_g = re.compile(r'\^')
     obsmap = set()
@@ -202,11 +199,12 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
     for i, line in enumerate(read_line(fp)):
         m_obs = p_obs.finditer(line)
         obsmap.update({complex(m.start(), i) for m in m_obs})
+        # find starting pos
         if not pos and (m_g := p_g.search(line)):
             pos = complex(m_g.start(), i)
             logger.debug(f'pos {pos}')
     height, width = i, len(line)
-    logger.debug(f'height {height} width {width}')
+    logger.info(f'height {height} width {width}')
     # real: col movement; imag: row movement; 0, -1 = -1j -> moving up
     dxy = complex(0, -1)
     path = [(pos, dxy)]
@@ -222,6 +220,7 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
         logger.debug(f'move to {pos} towards {dxy}')
         path.append((pos, dxy))
 
+    logger.info(f'{len(set(p[0] for p in path))} unique spots')
     if part_two:
         # simulate again, but try placing obstacles along visited path
         # and test for loop while retracing path
