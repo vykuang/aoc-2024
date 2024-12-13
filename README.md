@@ -220,3 +220,25 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
     - incr left and expand until enough space
     - then take from end again and repeat
     - keep expanded in mem? or mult and sum as it goes?
+
+### part ii
+
+- keep files together
+- if file to be moved is too large, don't
+- attempt each file transfer only once before moving to the next file ID
+- for each file, look through all empty blocks starting from left
+- empty blocks are continuously changing through the transfer process
+- change the input in-place
+- start the `blk` pos at first non-zero storage block for each attempted file transfer
+- check `blk` vs `n_last := n_file_blks`
+- while `blk < n_last`
+    - not enough space
+    - incr blk to next empty block
+    - until `pos_chk >= right`, then break and decr `last_id`
+- if `blk >= n_last`
+    - move `last_id` to blk
+- reset `pos_blk` to initial blk
+- process stops when `left_id == last_id`
+- after moving, need to check if there is remaining space
+    - if yes, try to fit remaining space with last blocks as well
+    - if not, `blk` pointer
