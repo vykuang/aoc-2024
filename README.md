@@ -242,3 +242,30 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - after moving, need to check if there is remaining space
     - if yes, try to fit remaining space with last blocks as well
     - if not, `blk` pointer
+
+## day 10 traversal
+
+### part i 
+
+- input: grid of heights
+- good trail:
+    - longest
+    - uphill only; do not go down or same height
+    - cardinal dir only
+- trailhead is any pos with height = 0
+- score: num of 9-height pos reachable from a trailhead via a *good* trail
+- sum the score of all trailheads
+- save grid as `{complex: height}`
+- collect trailheads
+- traversal: child nodes are valid only if h_child - h_parent = 1
+- need to check for repeats on the same path
+- add to path whether it's a peak or not
+
+### part ii
+
+- rating: num of distinct trails that begin at the trailhead
+- trail always ends at 9
+- but if a different path is taken to reach the same peak, it's a different trail
+- sum the ratings
+- I accidentally ran the logic for part ii when doing part i
+- don't keep track of paths
