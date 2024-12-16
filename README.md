@@ -268,4 +268,20 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - but if a different path is taken to reach the same peak, it's a different trail
 - sum the ratings
 - I accidentally ran the logic for part ii when doing part i
-- don't keep track of paths
+- don't keep track of paths; incr as soon as 9 is found
+
+## day 11 blinking stones
+
+### part i
+
+1. if 0, replace with 1
+1. if *even number of digits*, replaced with 2 stones; left half of num to left, right half to right; 1000 -> 10 and 0
+1. multiply by 2024
+
+input is line of number-engraved stones; count num stones after 25 blinks
+
+- array manipulation
+- iterate through the array and apply each rule
+- random insertion
+
+
