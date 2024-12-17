@@ -284,4 +284,38 @@ input is line of number-engraved stones; count num stones after 25 blinks
 - iterate through the array and apply each rule
 - random insertion
 
+## day 12 garden fences
 
+### part i
+
+- rectangular 2D plot
+- types of plants
+- same types form a region
+- same types can from different regions if not contiguous
+- find perimeter
+- sum perimeter * area of each region
+
+Implementation:
+
+- queue with top left
+- if already counted, next
+- else start new region and flood search in 4 cardinal dir
+    - if counted next 
+    - if new type, append to queue
+    - if same type, append to region
+- given collection of regions... flood search again to find all edges?
+    - start from any point in region
+    - search 4 cardinal dir
+    - if not in region or outside bounds, increment edge count
+    - if in region, append to search queue
+    - combine with region search into one
+
+### part ii - bulk discount
+
+- we're talking *sides* now, not perimeter
+- `AAAA` has 4 sides, vs p = 8
+- does flood search still work?
+- second pass? start with a point at the edge of a region
+- follow the edges, go clockwise, try all directions starting with left
+- increment sides only after turning
+- stop when returning to original pos
