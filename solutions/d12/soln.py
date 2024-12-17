@@ -5,6 +5,7 @@ import logging
 import sys
 from time import time
 from collections import deque
+from itertools import accumulate
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -34,22 +35,39 @@ def main(sample: bool, part_two: bool, loglevel: str):
             garden[complex(i, j)] = plant
 
     # flood search
-    dxys = [-1, 1, -1j, 1j]
-    que = deque([complex(0,0)])
+    # tuple(pos, heading)
+    que = deque([(complex(0,0), 1+0j)])
     visited = set()
     ans = 0
+    dxys = [-1,1,-1j,1j]
+    def side_search(pos, heading, area, edges, sides):
+        """
+        dfs to always check left of prev heading first
+        """
+        # base cases
+        if pos not in garden:
+            edges += 1
+            return
+        dxys = accumulate([-1j] * 4, lambda x, y: x * y, initial=-1j)
+        for nx in [pos + dxy for dxy in dxys[1:]]:
+            # start with left first
+            side_search(nx, nx - pos)
+
+
+
+
     while que:
-        curr = que.popleft()
+        curr, heading = que.popleft()
         logger.debug(f'searching from {curr} for {garden[curr]}')
         if curr in visited:
             continue
         # new region, search 4 cardinal
         logger.debug('start new region')
-        search = deque([curr])
+        search = deque([curr, heading])
         edges = 0
         area = 0
         while search:
-            pos = search.popleft()
+            pos, heading = search.popleft()
             logger.debug(f'checking {garden[pos]} at pos {pos}')
             if pos in visited:
                 logger.debug(f'{pos} already visited')
@@ -57,6 +75,7 @@ def main(sample: bool, part_two: bool, loglevel: str):
             area += 1
             logger.debug(f'{area}th {garden[pos]} at {pos}')
             visited.add(pos)
+            # dynamically generate new dxys to always turn left from current
             for nx in [pos + dxy for dxy in dxys]:
                 if nx not in garden:
                     edges += 1
@@ -70,11 +89,8 @@ def main(sample: bool, part_two: bool, loglevel: str):
                 # otherwise, in garden and same type
                 logger.debug(f'add {nx} to continue searching for {garden[nx]}')
                 search.append(nx)
-        cost = edges * area
-        ans += cost
+        ans += edges * area
         logger.info(f'region of {garden[curr]} has a={area} and pi={edges}')
-
-    
     # output
     return ans
 

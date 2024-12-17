@@ -284,6 +284,11 @@ input is line of number-engraved stones; count num stones after 25 blinks
 - iterate through the array and apply each rule
 - random insertion
 
+### part ii
+
+- 75 cycles; cycle detection?
+- no cycles with them together; how about by themselves? no, and the numbers never decrease in magnitude, implying higher powers than polynomial
+
 ## day 12 garden fences
 
 ### part i
@@ -319,3 +324,4 @@ Implementation:
 - follow the edges, go clockwise, try all directions starting with left
 - increment sides only after turning
 - stop when returning to original pos
+- doesn't seem to work on paper; need to figure something else
