@@ -325,3 +325,62 @@ Implementation:
 - increment sides only after turning
 - stop when returning to original pos
 - doesn't seem to work on paper; need to figure something else
+
+## day 13 claw contraption
+
+### part i
+
+- 3 tokens for A button; 1 for B
+- 1 prize
+- each button moves a little forward and a little to the right
+- A and B moves different distances
+- min moves to position claw above prize target?
+- some prizes cannot be won; these require 0 tokens
+- button presses < 100
+- 2 degrees of freedom
+- prioritize B if possible
+- dynamic programming?
+- top down recursion?
+- 3s in WSL2 for part i
+
+### part ii
+
+- Add 10000000000000 to the target; much larger
+- no more button limits
+- recursion limits
+- bottom up tabular approach?
+- start with only pressing B
+- decrement B until nA + mB = target
+- too large to iterate the target with such relatively small steps
+- any implementation needs some clever modulo math
+
+## day 14 restroom redoubt
+
+### part i
+
+- list of robots pos, and velocity, both in (x,y)
+- (0,0) = top left
+- robots can occupy the same tile
+- robots wrap around the edge
+- 100 seconds
+- count robots in each quadrant
+- robots on the quadrant lines do not count
+- return product
+- for each robot, move by their velocity
+- check for bounds
+- if pos_x + dx > width, pos_x = pos_x + dx % width
+- or can we always use mod? if x + dx < width, then x + dx % width = x + dx
+
+### part ii
+
+something that looks like a christmas tree...
+
+filter for cycles where no robots are overlapping? no cycles with no overlap...
+
+how about when all points not on the meridian have a reflection?
+
+from text, only *most* should arrange themselves; perhaps only check for half? 
+
+Ultimately we're checking for some sort of alignment around the meridian; check for average of all pos.x and if it's anywhere near meridian, take a look
+
+no dice. need to render the robot map
