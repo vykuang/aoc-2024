@@ -384,3 +384,27 @@ from text, only *most* should arrange themselves; perhaps only check for half?
 Ultimately we're checking for some sort of alignment around the meridian; check for average of all pos.x and if it's anywhere near meridian, take a look
 
 no dice. need to render the robot map
+
+## day 15 warehouse woes
+
+### part i
+
+- input: map then list of directions the robot want to take
+- in map, robot starts at `@`
+- `O` are boxes
+- `#` are walls
+- robots can push boxes but not if boxes are against walls, at which point robot remains in place
+- box coord = 100 * dist from top + dist from left (incl. edges)
+- return sum of box coords after robot finishes movement sequence
+
+Implement:
+
+- sparse array
+- collect boxes and robot pos as `dict[complex]`
+- but all coords need to be updated, sometimes multiple at a time
+- sparse matrix of bool?
+- `class Box`?
+    - self.pos
+    - self.neighbors?
+- for a 50 x 50 map, maybe not necessary for sparse rep?
+- keep entire grid, even empty
