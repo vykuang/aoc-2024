@@ -288,6 +288,9 @@ input is line of number-engraved stones; count num stones after 25 blinks
 
 - 75 cycles; cycle detection?
 - no cycles with them together; how about by themselves? no, and the numbers never decrease in magnitude, implying higher powers than polynomial
+- no cycles themselves, but stones will often repeat themselves
+- cache the result (length of blink results) of each stone, blink key
+- at blinks == 0: return 1, NOT `stone` VALUE since length == 1
 
 ## day 12 garden fences
 
@@ -408,3 +411,37 @@ Implement:
     - self.neighbors?
 - for a 50 x 50 map, maybe not necessary for sparse rep?
 - keep entire grid, even empty
+- record char for each pos, not simply bool for box, since walls can appear within warehouse bounds
+
+### part ii
+
+- boxes *and walls* are now twice as wide
+    - walls are '##'
+    - boxes are now '[]'
+- robot is still same size
+- height is the same
+- dist is measured between closest edge and closest side of box
+
+## day 16 reindeer maze
+
+### part i
+
+- S needs to reach E in a maze of '#' and '.'
+- move forward = 1 pt; turn 90deg = 1000 pt; minimize pt
+- sounds like time for dijkstra?
+- multiple paths can share the same minimum score
+
+### part ii
+
+- find *all* the best paths
+- count the tiles along those paths
+- KEEP VISITED - RUNNING MINIMUM SCORE AT EACH POS, DXY instead of only comparing it vs BEST- MUCH EARLIER PRUNING
+
+## day 17 chronospatial computer
+
+### part i
+
+reading is difficult.
+
+- instructions:
+    - 0: div

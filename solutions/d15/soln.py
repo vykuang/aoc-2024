@@ -28,8 +28,22 @@ def convert_move(arrow: str) -> complex:
         case _:
             return 0j
     
+def render_wh(wh: dict, pos: complex, width: int, height: int) -> None:
+    logger.info('render of current warehouse layout')
+    for y in range(height):
+        if 0 < y < height:
+            row = ""
+            for x in range(width):
+                if pos == complex(x, y):
+                    spot = '@'
+                else:
+                    spot = wh[complex(x, y)]
+                row += spot
+        else:
+            row = '#' * width
+        print(row)
 
-def main(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#'):
+def main(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
     """ """
     logger.setLevel(loglevel)
     if not sample:
@@ -48,13 +62,13 @@ def main(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#'
     while (line := line.strip()):
         # break once it reaches an empty line; move onto seq of movement
         for x, ch in enumerate(line):
-            wh[complex(x, y)] = (ch == box)
+            wh[complex(x, y)] = ch
         if not pos and (chk := line.find(bot)) >= 0:
             pos = complex(chk, y)
         y += 1
         line = next(inp)
-
-    width, height = x, y-1
+    width, height = x+1, y
+    #logger.debug(f'edges at 0 and width {wh[0j]} {wh[width+0j]}')
     logger.info(f'width {width} height {height}')
     moves = [convert_move(ch) for line in inp for ch in line.strip()]
     # execute
@@ -68,22 +82,24 @@ def main(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#'
         # check if box
         chk = nx
         to_move = []
-        while wh[chk]:
+        while wh[chk] == box:
             # exits if edge or empty
-            logger.debug(f'box at {chk}')
+            logger.debug(f'box at {chk}: {wh[chk]}')
             to_move.append(chk)
             chk += dxy
-        # check if edge at the end
-        if not (0 < nx.real < width) or not (0 < nx.imag < height):
+        # check if wall at the end
+        if wh[chk] == wall:
             continue
         # otherwise move all boxes
         pos = nx
         if to_move:
-            wh[to_move[0]] = False
-            wh[to_move[-1]+dxy] = True
+            wh[to_move[0]] = space
+            wh[to_move[-1]+dxy] = box
+            logger.debug(f'move box from {to_move[0]} to {to_move[-1]+dxy}')
     
     # output
-    ans = sum(100 * b.imag + b.real for b in wh[b] if wh[b])
+    render_wh(wh, pos, width, height)
+    ans = sum(100 * b.imag + b.real for b in wh if wh[b] == box)
     return ans
 
 if __name__ == "__main__":
