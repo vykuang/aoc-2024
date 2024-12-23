@@ -443,5 +443,43 @@ Implement:
 
 reading is difficult.
 
-- instructions:
-    - 0: div
+- 3 registers: A, B, C can hold any integer
+- 8 instructions:
+    - 0: div reg A = A / pow(2, combo)
+    - 1: bxl reg B = XOR of reg B and $l
+    - 2: bst B = $c % 8
+    - 3: jnz 
+        - no op if A = 0, 
+        - else jumps to $l, and 
+        - inst ptr is not inc'd by 2 after this (so that it can execute the inst it jumped to)
+    - 4: bxc B = B XOR C, and exhausts one operand
+    - 5: out out = $c & 8; multiple outs are comma-delim
+    - 6: bdv B = A / pow(2, combo)
+    - 7: cdv C = A / pow(2, combo)
+- inst pointer: pos of program where next opcode is read
+    - starts at 0, the first 3-bit num in prog
+    - incr += 2 after each instruction, since the index immediately following an inst is the operand
+    - except for `jmp`
+    - halts if reading past the end
+    - 0,1,2,3 would start at 0, and continue to 1, until 3, then halt
+- inst also specifies type of operand
+    - literal: val itself
+    - combo
+        - 0-3: literals
+        - 4-6: A-C
+        - 7: reserved
+- determine comma-delim'd output 
+- put everything into a class
+    - regA-C
+    - prog
+    - program pointer
+    - output
+- exe until ptr > prog
+
+### part ii
+
+program is supposed to output *another copy of the program*
+
+- find correct val to initialize `regA` so that output is same as program
+- return lowest positive A init
+
