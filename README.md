@@ -453,7 +453,7 @@ reading is difficult.
         - else jumps to $l, and 
         - inst ptr is not inc'd by 2 after this (so that it can execute the inst it jumped to)
     - 4: bxc B = B XOR C, and exhausts one operand
-    - 5: out out = $c & 8; multiple outs are comma-delim
+    - 5: out out = $c % 8; multiple outs are comma-delim
     - 6: bdv B = A / pow(2, combo)
     - 7: cdv C = A / pow(2, combo)
 - inst pointer: pos of program where next opcode is read
@@ -461,7 +461,7 @@ reading is difficult.
     - incr += 2 after each instruction, since the index immediately following an inst is the operand
     - except for `jmp`
     - halts if reading past the end
-    - 0,1,2,3 would start at 0, and continue to 1, until 3, then halt
+    - 0,1,2,3 would start at 0, pass 1 as operand, then exe 2, with 3 as operand, then halt
 - inst also specifies type of operand
     - literal: val itself
     - combo
@@ -482,4 +482,21 @@ program is supposed to output *another copy of the program*
 
 - find correct val to initialize `regA` so that output is same as program
 - return lowest positive A init
+- seems to require some mathing
 
+## day 18 RAM run
+
+### part i
+
+- 2d grid, 0-70
+- input: list of coords indicating where bytes will fall, in `x, y` format
+- start at `0, 0` (top left)
+- exit at bottom right (6, 6) in ex, (70, 70) in input
+- once bytes land, that spot is corrupted and cannot be used
+- pathfinding with a dynamic maze
+- dijkstra while updating barriers every cycle
+- only worked after *all the required bytes fell first*, instead of updating the falling bytes step by step; misread?
+
+### part i
+
+determine the first byte that will prevent any paths from reaching the end
