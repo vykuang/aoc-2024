@@ -34,7 +34,7 @@ def main_one(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
     # execute
     # find starting pos
     p_obs = re.compile(r'#')
-    p_g = re.compile(r'\^')
+    p_g = re.compile(r'\^') # literal ^
     colmap = defaultdict(list)
     rowmap = defaultdict(list)
     pos = None
@@ -205,11 +205,10 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
             logger.debug(f'pos {pos}')
     height, width = i, len(line)
     logger.info(f'height {height} width {width}')
-    # real: col movement; imag: row movement; 0, -1 = -1j -> moving up
-    dxy = complex(0, -1)
+    dxy = -1j # moving up
     path = [(pos, dxy)]
-    # exit con: if guard is at the edge, they will always exit
     start = pos
+    # exit con: if guard is at the edge, they will always exit
     while 0 < pos.imag < height and 0 < pos.real < width:
         while pos + dxy in obsmap:
             # turn right
@@ -232,23 +231,26 @@ def main(sample: bool, part_two: bool, loglevel: str, guard: str = '^'):
             # add path to history as we retrace so that not entire
             # history is used for reference from beginning
             visited.add((pos, dxy))
-            # after orienting, simulate placing obstacle in next pos
-            # and loop until a. same pos and dir traversed (loop)
-            # or step count > size of map * dir
             if (pos + dxy) in obsmap:
                 continue
             sim_pos, sim_dxy = pos, dxy
+            # after orienting, simulate obstacle in next pos
             obsmap.add(pos + dxy)
             steps = 0
-            #logger.debug(f'simulating obs @ {pos+dxy}')
-            while steps < 4 * height * width and 0 < sim_pos.real < width and 0 < sim_pos.imag < height:
+            # and loop until a. same pos and dir traversed (loop)
+            # or step count > size of map * dir
+            sim_visit = set()
+            while 0 < sim_pos.real < width and 0 < sim_pos.imag < height: # steps < 4 * height * width and 
+                sim_visit.add((sim_pos, sim_dxy))
                 while (sim_pos + sim_dxy) in obsmap:
                     sim_dxy /= -1j
                     #logger.debug(f'turn to {sim_dxy}')
                 sim_pos += sim_dxy
+
                 #logger.debug(f'sim move to {sim_pos}')
                 steps += 1
-                if (sim_pos, sim_dxy) in visited:
+                if (sim_pos, sim_dxy) in visited or (sim_pos, sim_dxy) in sim_visit:
+                    # loop detected
                     count += 1
                     #logger.debug(f'{count} obs found at {pos+dxy}')
                     break

@@ -151,6 +151,10 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
 - for each new pos, check if there exists some prev path going to the right of current dir, and if there are any obs between pos and start of that nearest path segment
 - record each segment when turning, or at the beginning
 - turning also marks the end of prev segment
+
+simulation approach:
+
+- retrace pat
 ## Day 7 bridge repair
 
 ### part i
@@ -497,6 +501,31 @@ program is supposed to output *another copy of the program*
 - dijkstra while updating barriers every cycle
 - only worked after *all the required bytes fell first*, instead of updating the falling bytes step by step; misread?
 
-### part i
+### part ii
 
 determine the first byte that will prevent any paths from reaching the end
+
+## day 19 linen layout
+
+### part i
+
+- pattern of colors
+- w, u, b, r, g
+- input:
+    - list of available patterns (with replacement)
+    - list of desired patterns
+- some desired patterns are not possible
+- count how many are
+- dynamic prog?
+    - top-down recursion with memo?
+    - branch for each possible option
+- BE CAREFUL OF EMPTY LAST LINES
+
+### part ii
+
+- get alllllll the possible combinations
+- instead of returning bool, return 1 for each valid hit
+- sum the possibilities instead
+- still use pattern as the key, since linens are taken with replacement
+- use diff cache than validation
+- manual cache seems to be faster than `@cache` by 10-15%?
