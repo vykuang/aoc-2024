@@ -28,8 +28,10 @@ def main(sample: bool, part_two: bool, loglevel: str, wall='#', space='.'):
     logger.setLevel(loglevel)
     if not sample:
         fp = "input.txt"
+        ps_lim = 100
     else:
         fp = "sample.txt"
+        ps_lim = 50
     logger.debug(f"loglevel: {loglevel}")
     logger.info(f'Using {fp} for {"part 2" if part_two else "part 1"}')
 
@@ -64,26 +66,27 @@ def main(sample: bool, part_two: bool, loglevel: str, wall='#', space='.'):
                 logger.debug(f'new pos {nx}')
                 break
     path[pos] = picos 
-    logger.info(f'path:\n{len(path)} picosecs')
-    if part_two:
-        # cheats: 20 ps long
-        # programmatically populate the search space
-    else:
-        corners = [1-1j, -1-1j, 1+1j, -1+1j]
-        ends = [-2, 2, -2j, 2j]
-    chks = corners + ends
+    logger.info(f'path:\n{len(path)-1} picosecs')
+
+    skips = 20 if part_two else 2
+    chks = []
+    for x in range(-skips, skips+1):
+        for y in range(-skips, skips+1):
+            if 2 <= abs(x) + abs(y) <= skips:
+                chks.append(complex(x,y))
+    #logger.info(f'skip range: {chks}')
     # retrace no-skip path for possible wallskips
     for pos, picos in path.items():
         # look for other paths within 2 steps
         for nx in [pos + skip for skip in chks]:
-            if nx in path and path[nx] > path[pos] + 2:
-                # +2 to count the two ps taken during the cheat
+            if nx in path and path[nx] > path[pos] + abs(skips.real) + abs(skips.imag):
+                # +abs... to count the ps taken during the cheat
                 # record shortcut
-                res[path[nx] - path[pos] - 2] += 1
-                logger.debug(f'{pos, nx}: {path[nx] - path[pos] - 2} ps saved')
+                res[path[nx] - path[pos] - abs(skips.real) - abs(skips.imag)] += 1
 
     ordered = sorted(res.items(), key=lambda tup: tup[0], reverse=True)
-    ans = sum(n for t, n in ordered if t > 99)
+    logger.info(ordered)
+    ans = (n for t, n in ordered if t >= ps_lim)
     logger.info(ans)
     # output
     return ans
