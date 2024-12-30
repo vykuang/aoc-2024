@@ -40,11 +40,35 @@ def main(sample: bool, part_two: bool, loglevel: str):
     visited = set()
     ans = 0
     dxys = [-1,1,-1j,1j]
-    def side_search(pos, heading, area, edges, sides):
+    def side_search(pos, heading):
         """
         dfs to always check left of prev heading first
         """
         # base cases
+        search = deque([curr, heading])
+        while search:
+            pos, heading = search.popleft()
+            logger.debug(f'checking {garden[pos]} at pos {pos}')
+            if pos in visited:
+                logger.debug(f'{pos} already visited')
+                continue
+            area += 1
+            logger.debug(f'{area}th {garden[pos]} at {pos}')
+            visited.add(pos)
+            # dynamically generate new dxys to always turn left from current
+            for nx in [pos + dxy for dxy in dxys]:
+                if nx not in garden:
+                    edges += 1
+                    logger.debug(f'{edges}th edge at {nx}: bounds')
+                    continue
+                if garden[nx] != garden[curr]:
+                    edges += 1
+                    que.append(nx)
+                    logger.debug(f'{edges}th edge at {nx}: new plant')
+                    continue
+                # otherwise, in garden and same type
+                logger.debug(f'add {nx} to continue searching for {garden[nx]}')
+                search.append(nx)
         if pos not in garden:
             edges += 1
             return

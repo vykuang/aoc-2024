@@ -119,7 +119,7 @@ Misread #1: the count is incremented for each occurrence in the left list as wel
     - if exists, swap j and i
     - nested for-loop at each line
 
-## Day 6
+## Day 6 - guard patrol
 
 ### part i
 
@@ -330,6 +330,57 @@ Implementation:
 - increment sides only after turning
 - stop when returning to original pos
 - doesn't seem to work on paper; need to figure something else
+
+#### corner counting
+
+for any polygon, n(sides) = n(corners); for each cell, count the corners
+
+#### map the edges and sort
+
+- horiz sides: `{row: [cols]}` - top left of `grid[row][col]` going towards right
+- vert sides: `{col: [rows]}` - top left of `grid[row][col]` going towards down
+- sort each lists for each key
+- both row and col ranges from 0 to height/width to account for the rightmost col/bottom row
+
+```
++-+-+-+-+
+|A A A A|
++-+-+-+-+     +-+
+              |D|
++-+-+   +-+   +-+
+|B B|   |C|
++   +   + +-+
+|B B|   |C C|
++-+-+   +-+ +
+          |C|
++-+-+-+   +-+
+|E E E|
++-+-+-+
+```
+
+A: 
+
+- horiz: `{0: [0,1,2,3]}, {1: [0,1,2,3]}`
+- vert: `{0: [0]}, {4: [0]}`
+- both horiz are continuous - one side each
+- both vert are singular - one side each
+- 4 sides
+
+C:
+
+- horiz
+    - 1: [2]
+    - 2: [3]
+    - 3: [2]
+    - 4: [3]
+- vert
+    - 2: [1,2]
+    - 3: [1,3]
+    - 4: [2,3]
+- each horiz += 1
+- verts @ cols 2, 4 are 1 each
+- verts @ col 3 have 2 segments = 2 sides
+- total = 8
 
 ## day 13 claw contraption
 
