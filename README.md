@@ -232,20 +232,18 @@ simulation approach:
 - attempt each file transfer only once before moving to the next file ID
 - for each file, look through all empty blocks starting from left
 - empty blocks are continuously changing through the transfer process
-- change the input in-place
-- start the `blk` pos at first non-zero storage block for each attempted file transfer
-- check `blk` vs `n_last := n_file_blks`
-- while `blk < n_last`
-    - not enough space
-    - incr blk to next empty block
-    - until `pos_chk >= right`, then break and decr `last_id`
-- if `blk >= n_last`
-    - move `last_id` to blk
-- reset `pos_blk` to initial blk
-- process stops when `left_id == last_id`
-- after moving, need to check if there is remaining space
-    - if yes, try to fit remaining space with last blocks as well
-    - if not, `blk` pointer
+
+implement:
+
+- if block cannot be moved, it will never be attempted again
+    - calc checksum on the spot
+- block id: index of input
+    - used to check whether space can fit file
+- pos: pos on actual disk (after expanding the input)
+    - used for chksum
+- keep disk[blk] as prefix sum to reference pos of each blkid
+    - update when used
+- almost 2s; need to apply dict, Counter, and deque
 
 ## day 10 traversal
 
@@ -529,3 +527,18 @@ determine the first byte that will prevent any paths from reaching the end
 - still use pattern as the key, since linens are taken with replacement
 - use diff cache than validation
 - manual cache seems to be faster than `@cache` by 10-15%?
+
+## day 20 race condition
+
+- no pathfinding necessary, there is only a single path from start to end
+
+### part i
+
+- keep history of path and turn at each point
+- look for other points in the path where manhattan distance <= cheat and picosec is further along
+
+### part ii
+
+extend part i by changing the cheat timer
+
+## day 21

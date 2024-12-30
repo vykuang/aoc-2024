@@ -76,17 +76,25 @@ def main(sample: bool, part_two: bool, loglevel: str, wall='#', space='.'):
                 chks.append(complex(x,y))
     #logger.info(f'skip range: {chks}')
     # retrace no-skip path for possible wallskips
+    ans = 0
     for pos, picos in path.items():
         # look for other paths within 2 steps
-        for nx in [pos + skip for skip in chks]:
-            if nx in path and path[nx] > path[pos] + abs(skips.real) + abs(skips.imag):
+        #logger.debug(f"{'-'*20} {pos, picos} turn")
+        for nx, skip in [(pos + skip, skip) for skip in chks]:
+            #logger.debug(f'check {pos} + {skip} = {nx}')
+            if nx in path and path[nx] > path[pos] + abs(skip.real) + abs(skip.imag):
                 # +abs... to count the ps taken during the cheat
                 # record shortcut
-                res[path[nx] - path[pos] - abs(skips.real) - abs(skips.imag)] += 1
+                saved = path[nx] - path[pos] - abs(skip.real) - abs(skip.imag)
+                if saved >= ps_lim:
+                    #res[saved] += 1
+                    #logger.debug(f'{saved} ps saved: {skip} to {nx}')
+                    ans += 1
 
-    ordered = sorted(res.items(), key=lambda tup: tup[0], reverse=True)
-    logger.info(ordered)
-    ans = (n for t, n in ordered if t >= ps_lim)
+
+    #ordered = sorted(res.items(), key=lambda tup: tup[0], reverse=True)
+    #logger.info(ordered)
+    #ans = sum(res.values())
     logger.info(ans)
     # output
     return ans
