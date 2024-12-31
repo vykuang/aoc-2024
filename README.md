@@ -382,6 +382,23 @@ C:
 - verts @ col 3 have 2 segments = 2 sides
 - total = 8
 
+Foiled by the B enclosed by A example
+
+```
+AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA
+```
+
+In the centre, there are two horiz. fences, but current method only counts 1, since technically they are sequential along the same row
+
+- need direction of plant -> fence
+- first 2: [2, -1j]: [1, 2]
+- other 2: [2, 1j]: [3, 4]
+
 ## day 13 claw contraption
 
 ### part i
