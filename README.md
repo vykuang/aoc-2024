@@ -425,7 +425,18 @@ In the centre, there are two horiz. fences, but current method only counts 1, si
 - start with only pressing B
 - decrement B until nA + mB = target
 - too large to iterate the target with such relatively small steps
-- any implementation needs some clever modulo math
+- any implementation needs ~~some clever modulo math~~ linear algebra
+
+$$Ax = B$$
+$$A^{-1} A x = B$$
+$$Ix = A^{-1} B$$
+$$x = A^{-1} B$$
+
+- A = coefficient matrix (movement per button press, each ~~row~~ column = each button)
+- x = variable (num presses required for each button)
+- B = constants (target coord)
+
+Filter out non-integer results
 
 ## day 14 restroom redoubt
 
