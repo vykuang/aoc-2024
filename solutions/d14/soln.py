@@ -6,6 +6,8 @@ import sys
 from time import time
 import re
 from math import prod
+from statistics import pstdev
+from collections import Counter
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
@@ -16,26 +18,39 @@ def read_line(fpath: str):
     with open(fpath) as f:
         yield from f
 
-def tree_check(pos: set, width: int, tol=0.5) -> bool:
+def tree_check(pos: list, width: int, height: int, stdev_x: int = 5, stdev_y: int = 5) -> bool:
     """
-    tests for horizontal reflection
+    instead of checking for reflection centered on the meridian,
+    count n_robots for each row/col at each cycle
+    assume mu = n_robots / nrow or ncol
+    compare new count with past accum. stdev.
+    if > 3 stdev, render for visual inspection
+    assumes that the population mean should be centred on the
+    meridian/equator (half of width/height)
     """
-    mer = width // 2
-    refl = 0
-    checked = set()
-    for x, y in pos:
-        if (x, y) in checked:
-            continue
-        if x == mer:
-            refl += 1
-        elif x < mer and (mer + (mer - x), y) in pos:
-            refl += 1
-            checked.add((x,y))
-        elif x > mer and (mer - (x - mer), y) in pos:
-            refl += 1
-            checked.add((x,y))
-    return f'{refl/len(pos):.3f}', refl / len(pos) > tol
+    xs, ys = zip(*pos)
+    nxs = Counter(xs)
+    nys = Counter(ys)
+    # for each row/col, compare the count vs existing mean and take the z-val
+    mu_x = len(pos) / width
+    mu_y = len(pos) / height
+    z_xs = [(nx - mu_x)/stdev_x for nx in nxs.values()]
+    z_ys = [(ny - mu_y)/stdev_y for ny in nys.values()]
+    logger.debug(f'max zx {max(z_xs)}\tmax zy{max(z_ys)}')
+    return any(zx > 3 for zx in z_xs) or any(zy > 3 for zy in z_ys)
+
     
+def render(pos: list, width: int, height: int) -> None:
+    """
+    renders the live pos of all robots
+    # - robot; . for space
+    """
+    grid = [['.' for _ in range(width)] for _ in range(height)]
+    for x, y in pos:
+        grid[y][x] = '#'
+    for row in grid:
+        print(''.join(row))
+
 def main(sample: bool, part_two: bool, loglevel: str, seconds: int = 100):
     """ """
     logger.setLevel(loglevel)
@@ -49,17 +64,12 @@ def main(sample: bool, part_two: bool, loglevel: str, seconds: int = 100):
         width = 11
     logger.debug(f"loglevel: {loglevel}")
     logger.info(f'Using {fp} for {"part 2" if part_two else "part 1"}')
-
+    if part_two:
+        seconds = 100000
     # read input
     p = re.compile(r'([-]*\d+),([-]*\d+)')
-    # for line in read_line(fp):
-    #     vals = p.findall(line.strip())
-    #     pos, vel = [complex(*list(map(int, num))) for num in vals]
-    #     logger.debug(f'pos {pos} vel {vel}')
-
-    # pos, vels = zip(*[[complex(*list(map(int, num))) for num in p.findall(line.strip())] 
-    #         for line in read_line(fp)])
-    pos, vels = zip(*[[list(map(int, num)) for num in p.findall(line.strip())] 
+    pos, vels = zip(*[[list(map(int, num)) 
+            for num in p.findall(line.strip())] 
             for line in read_line(fp)])
     # execute
     xavgs = []
@@ -68,21 +78,14 @@ def main(sample: bool, part_two: bool, loglevel: str, seconds: int = 100):
     for sec in range(seconds):
         xavg = 0
         for rb in range(len(pos)):
-            pos[rb][0] += vels[rb][0]
-            pos[rb][1] += vels[rb][1]
+            pos[rb][0] = (pos[rb][0] + vels[rb][0]) % width
+            pos[rb][1] = (pos[rb][1] + vels[rb][1]) % height
             # width = 101; if pos.real = 101, that puts its out of bound 
             # bc of 0-index. but 101 % width = 0 which wraps it back so it works
-            pos[rb][0] %= width
-            pos[rb][1] %= height
-            xavg += pos[rb][0]
-        #ptree = tree_check(rbmap, width)
-        xavg /= len(pos)
-        xavgs.append((xavg, sec))
-        if abs(xavg - width//2) < 0.5:
-            logger.info(f'xavg {xavg} @ {sec}')
-    
-    xavgs.sort(key=lambda p: abs(width//2-p[0]))
-    logger.info(f'closest to mer: {xavgs[:10]}')
+        if part_two and tree_check(pos, width, height):
+            logger.info(f'end of {sec} seconds')
+            render(pos, width, height)
+            input('press to render next second')
     # count in quadrants
     quads = [0] * 4
     eq = height // 2
