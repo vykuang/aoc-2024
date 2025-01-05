@@ -30,18 +30,19 @@ def convert_move(arrow: str) -> complex:
             return 0j
     
 def render_wh(wh: dict, pos: complex, width: int, height: int) -> None:
-    logger.info('render of current warehouse layout')
+    logger.info(f'render of current warehouse layout; pos @ {pos}')
     for y in range(height):
-        if 0 < y < height:
-            row = ""
-            for x in range(width):
-                if pos == complex(x, y):
-                    spot = '@'
-                else:
-                    spot = wh[complex(x, y)]
-                row += spot
-        else:
-            row = '#' * width
+        # if 0 < y < height:
+        #     row = ""
+        #     for x in range(width):
+        #         if pos == complex(x, y):
+        #             spot = '@'
+        #         else:
+        #             spot = wh[complex(x, y)]
+        #         row += spot
+        # else:
+        #     row = '#' * width
+        row = ''.join('@' if pos == complex(x,y) else wh[complex(x,y)] for x in range(width)) if 0 < y < height else '#' * width
         print(row)
 
 def p1(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
@@ -176,20 +177,30 @@ def p2(sample: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
     # traverse
     for dxy in moves:
         logger.info(f'move {dxy}')
-        if (to_move := pushbox(pos, dxy, width, height, boxes, boxmap, wh)):
+        if wh[pos+dxy] == '.':
+            pos += dxy
+            
+        elif (to_move := pushbox(pos, dxy, width, height, boxes, boxmap, wh)):
             pos += dxy
             while to_move:
                 boxid = to_move.pop()
+                logger.debug(f'moving box {boxid} @ {boxmap[boxid]}')
+                # how to enforce correct order of movement?
+                # better to have one coord for both spots of boxes
                 for i in range(len(boxmap[boxid])):
                     # update wh, boxes, boxmap
-                    wh[boxmap[boxid][i]] = space
-                    boxes[boxmap[boxid][i]] = -1
-                    boxmap[boxid][i] += dxy
-                    boxes[boxmap[boxid][i]] = boxid
-                    wh[boxmap[boxid][i]] = box
+                    wh[boxmap[boxid][i]] = space    # unreg wh 
+                    boxes[boxmap[boxid][i]] = -1    # -1 for not a box
+                    boxmap[boxid][i] += dxy         # move box
+                    boxes[boxmap[boxid][i]] = boxid # assign id to new loc
+                    wh[boxmap[boxid][i]] = box      # update wh
+                
+                logger.debug(f'wh @ {boxmap[boxid]} = {wh[boxmap[boxid][0]],wh[boxmap[boxid][1]]}')
+                logger.debug(f'box {boxid} moved to {boxmap[boxid]}\nwh @ ')
+        render_wh(wh, pos, width, height)
+        input('press for next move')
     
     # output
-    render_wh(wh, pos, width, height)
     ans = sum(100 * b.imag + b.real for b in wh if wh[b] == box)
     return ans
 
@@ -203,7 +214,7 @@ if __name__ == "__main__":
     opt("--loglevel", "-l", type=str.upper, default="info")
     args = parser.parse_args()
     tstart = time()
-    ans = p1(args.sample, args.part_two, args.loglevel)
+    # ans = p1(args.sample, args.part_two, args.loglevel)
     ans2 = p2(args.sample, args.loglevel)
     tstop = time()
     logger.info(f"runtime: {(tstop-tstart)*1e3:.3f} ms")
