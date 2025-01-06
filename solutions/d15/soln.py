@@ -42,7 +42,7 @@ def render_wh(wh: dict, pos: complex, width: int, height: int) -> None:
         #         row += spot
         # else:
         #     row = '#' * width
-        row = ''.join('@' if pos == complex(x,y) else wh[complex(x,y)] for x in range(width)) if 0 < y < height else '#' * width
+        row = ''.join('@' if pos == complex(x,y) else str(wh[complex(x,y)])[:1] for x in range(width)) if 0 < y < height else '#' * width
         print(row)
 
 def p1(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
@@ -106,29 +106,32 @@ def p1(sample: bool, part_two: bool, loglevel: str, box='O', bot='@', wall='#', 
     ans = sum(100 * b.imag + b.real for b in wh if wh[b] == box)
     return ans
 
-def pushbox(pos, dxy, width, height, boxes, boxmap, wh) -> list:
+def pushbox(pos, dxy, width, height, boxmap, wh) -> list:
     """
     keeps searching for more locations to check
     Returns list of boxes to be moved in dxy direction,
     or empty list if none can be moved due to obstruction
     """
-    que = deque([pos+dxy])
+    que = deque([pos])
     to_move = []
     while que:
-        nx = que.popleft()
-        if not (1 < nx.real < width-1) or not (0 < nx.imag < height) or wh[nx] == '#':
-            # squeeze the width boundary
+        # nx: complex, reps loc of grid
+        curr = que.popleft()
+        nx = curr + dxy
+        #if not (1 < nx.real < width-1) or not (0 < nx.imag < height) or wh[nx] == '#':
+        if wh[nx] == '#':
             return []
         # empty space? continue down the queue
-        if wh[nx] == '.':
+        elif wh[nx] == '.':
             continue
         # otherwise, look for other spots occupied by box
-        boxid = boxes[nx]
+        boxid = wh[nx]
         if boxid in to_move:
             continue
         to_move.append(boxid)
         # add both and let to_move filter out those already processed
-        que.extend((b + dxy for b in boxmap[boxid]))
+        que.append(boxmap[boxid])
+        que.append(boxmap[boxid]+1)
     return to_move
 
 def p2(sample: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
@@ -142,7 +145,6 @@ def p2(sample: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
         fp = "sample.txt"
     logger.debug(f"loglevel: {loglevel}")
     # read input
-    boxes = {}      # lookup id from xy
     boxmap = {}     # lookup xy from id
     wh = {}         # lookup obj from xy
     inp = read_line(fp)
@@ -156,55 +158,45 @@ def p2(sample: bool, loglevel: str, box='O', bot='@', wall='#', space='.'):
                 ch = space
             xy1 = complex(2*x, y)
             xy2 = complex(2*x+1, y)
+            if ch == box:
+                ch = boxid
+                # id lookup only returns left loc
+                boxmap[boxid] = xy1 
+                boxid += 1
+                logger.debug(f'box {boxid} found')
+
             wh[xy1] = ch
             wh[xy2] = ch
-            if ch == box:
-                # two-way lookup
-                boxes[xy1] = boxid
-                boxes[xy2] = boxid
-                boxmap[boxid] = [xy1, xy2]
-                boxid += 1
+            logger.debug(f'wh[{xy1}] = {ch}')
         y += 1
         line = next(inp)
     width = int(max(pos.real for pos in wh) + 1)
     height = y
-    
     #logger.debug(f'edges at 0 and width {wh[0j]} {wh[width+0j]}')
     logger.info(f'width {width} height {height}')
     render_wh(wh, pos, width, height)
     moves = [convert_move(ch) for line in inp for ch in line.strip()]
-
     # traverse
     for dxy in moves:
-        logger.info(f'move {dxy}')
-        if wh[pos+dxy] == '.':
+        logger.debug(f'move {dxy}')
+        if wh[pos+dxy] == space:
             pos += dxy
-            
-        elif (to_move := pushbox(pos, dxy, width, height, boxes, boxmap, wh)):
+        elif (to_move := pushbox(pos, dxy, width, height, boxmap, wh)):
             pos += dxy
             while to_move:
                 boxid = to_move.pop()
-                logger.debug(f'moving box {boxid} @ {boxmap[boxid]}')
-                # how to enforce correct order of movement?
-                # better to have one coord for both spots of boxes
-                for i in range(len(boxmap[boxid])):
-                    # update wh, boxes, boxmap
-                    wh[boxmap[boxid][i]] = space    # unreg wh 
-                    boxes[boxmap[boxid][i]] = -1    # -1 for not a box
-                    boxmap[boxid][i] += dxy         # move box
-                    boxes[boxmap[boxid][i]] = boxid # assign id to new loc
-                    wh[boxmap[boxid][i]] = box      # update wh
-                
-                logger.debug(f'wh @ {boxmap[boxid]} = {wh[boxmap[boxid][0]],wh[boxmap[boxid][1]]}')
-                logger.debug(f'box {boxid} moved to {boxmap[boxid]}\nwh @ ')
-        render_wh(wh, pos, width, height)
-        input('press for next move')
+                logger.debug(f'moving box {boxid} @ {boxmap[boxid]} to {boxmap[boxid]+dxy}')
+                wh[boxmap[boxid]] = space    # unreg wh 
+                wh[boxmap[boxid]+1] = space    # unreg wh 
+                boxmap[boxid] += dxy         # move box
+                wh[boxmap[boxid]] = boxid      # update wh
+                wh[boxmap[boxid]+1] = boxid      # update wh
+    render_wh(wh, pos, width, height)
     
     # output
-    ans = sum(100 * b.imag + b.real for b in wh if wh[b] == box)
+    ans = sum(100*pos.imag + pos.real for pos in boxmap.values())
+    logger.info(f'p2 ans {ans}')
     return ans
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -214,7 +206,7 @@ if __name__ == "__main__":
     opt("--loglevel", "-l", type=str.upper, default="info")
     args = parser.parse_args()
     tstart = time()
-    # ans = p1(args.sample, args.part_two, args.loglevel)
+    #ans = p1(args.sample, args.part_two, args.loglevel)
     ans2 = p2(args.sample, args.loglevel)
     tstop = time()
     logger.info(f"runtime: {(tstop-tstart)*1e3:.3f} ms")

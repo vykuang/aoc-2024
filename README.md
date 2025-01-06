@@ -501,7 +501,12 @@ Implement:
     - boxes are now '[]'
 - robot is still same size
 - height is the same
-- dist is measured between closest edge and closest side of box
+- dist is measured x, y of left side of box
+- add two lookups:
+    - boxes[loc] -> id, to associate boxes together
+    - boxmap[id] -> pos of left side, so that movement only applies to one loc
+    - mitigates issue of finding correct order of movement, depending on that direction of push
+- add `boxid` during map read
 
 ## day 16 reindeer maze
 
@@ -581,6 +586,11 @@ program is supposed to output *another copy of the program*
 ### part ii
 
 determine the first byte that will prevent any paths from reaching the end
+
+- for each byte, run pathfind
+- how to determine when there is no possible path? when bfs queue runs out, like normal
+- pathfind should return a valid path (until it can't in which case we've found the culprit)
+- if next byte is not in the most recent path, do not re-simulate
 
 ## day 19 linen layout
 
