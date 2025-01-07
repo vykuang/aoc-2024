@@ -570,6 +570,22 @@ program is supposed to output *another copy of the program*
 - return lowest positive A init
 - seems to require some mathing
 
+Insight: reg A scales with length of output - binary search?
+
+- search space: (1, unknown)
+- find upper bound by doubling until len(output) > len(prog)
+- find lower bound by binary search, until len(output) = len(prog) - 1
+- search space size: 5e14, still unfeasible
+
+I looked for a hint: base 8. Something to do with the modulu 8 op it seems. The output is directly related to A_init in octal: if oct(A) = 4112, output = 1,1,4,0
+
+- convert A to octal
+- mask the last octal
+- reverse the digits
+- shift all digits one place left with wraparound
+- is it always last octal? only one shift? try with larger initial values
+- rule is only valid for sample input... new rule to be found for full input
+
 ## day 18 RAM run
 
 ### part i

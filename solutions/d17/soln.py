@@ -14,8 +14,6 @@ class Computer:
         self.regB = regs['B']
         self.regC = regs['C']
         self.prog = prog
-        self.ptr = 0
-        self.output = []
 
     def combo(self, oprnd):
         if 0 <= oprnd < 4:
@@ -32,11 +30,13 @@ class Computer:
         """
         executes the instructions on the regs
         """
+        self.ptr = 0
+        self.output = []
         while self.ptr < len(self.prog):
             opcode = self.prog[self.ptr]
             oprnd = self.prog[self.ptr+1]
             combo = self.combo(oprnd)
-            logger.debug(f'opcode {opcode} oprnd {oprnd}')
+            # logger.debug(f'opcode {opcode} oprnd {oprnd}')
             match opcode:
                 case 0:
                     self.regA = int(self.regA / pow(2, combo))
@@ -44,7 +44,7 @@ class Computer:
                     self.regB = int(self.regA / pow(2, combo))
                 case 7:
                     self.regC = int(self.regA / pow(2, combo))
-                case 1:
+                case 1: # XOR
                     self.regB = self.regB ^ oprnd
                 case 2:
                     self.regB = combo % 8
@@ -58,10 +58,10 @@ class Computer:
                 case 4:
                     self.regB = self.regB ^ self.regC
                 case 5:
-                    self.output.append(str(combo % 8))
+                    self.output.append(combo % 8)
             self.ptr += 2
-            logger.debug(f'current out: {self.output}')
-        return ','.join(self.output)
+            # logger.debug(f'current out: {self.output}')
+        return self.output
 
 
 def read_line(fpath: str):
@@ -96,10 +96,28 @@ def main(sample: bool, part_two: bool, loglevel: str):
     # execute
     logger.info(f'regs:{regs}\nprog: {prog}')
     cpu = Computer(regs, prog)
-    ans = cpu.exe()
+    p1 = cpu.exe()
+    ans1 = ','.join(str(n) for n in p1)
 
+    #regs['A'] += 1
+    A_init = 0
+    for i in range(len(prog)-1):
+        A_init += prog[i] * pow(8, i+1)
+
+    A_init = 1
+    regs['A'] = A_init
+    p2 = Computer(regs, prog).exe()
+    logger.debug(f'regA = {regs["A"], oct(regs["A"])}\noutput {p2}')
+    # search for upper bound
+    while p2 != prog:
+        regs['A'] *= 2
+        p2 = Computer(regs, prog).exe()
+        logger.debug(f'regA = {regs["A"], oct(regs["A"])}\noutput {p2}')
+        input()
+    ans2 = regs['A']
+    logger.info(f'regA {regs["A"]}\np2: {",".join(str(n) for n in p2)}')
     # output
-    return ans
+    return ans1, ans2
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
