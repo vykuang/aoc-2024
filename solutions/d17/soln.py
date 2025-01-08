@@ -109,11 +109,22 @@ def main(sample: bool, part_two: bool, loglevel: str):
     p2 = Computer(regs, prog).exe()
     logger.debug(f'regA = {regs["A"], oct(regs["A"])}\noutput {p2}')
     # search for upper bound
-    while p2 != prog:
-        regs['A'] *= 2
+    # while p2 != prog:
+    ones = []
+    for i in range(int('200', base=8), int('300', base=8)):
+    #     regs['A'] *= 2
+    #     p2 = Computer(regs, prog).exe()
+    #     logger.debug(f'regA = {oct(regs["A"])}\noutput {p2}')
+        # regs['A'] += 1
+        regs['A'] = i
         p2 = Computer(regs, prog).exe()
-        logger.debug(f'regA = {regs["A"], oct(regs["A"])}\noutput {p2}')
-        input()
+        ones.append(p2[0])
+        if i % 8 == 7:
+            logger.debug(f'a = {oct(i)}\t tens {p2[1]}\tones {ones}')
+            ones = []
+        # logger.debug(f'regA = {oct(regs["A"])}\noutput {p2}')
+        # regs['A'] -= 1
+        # input()
     ans2 = regs['A']
     logger.info(f'regA {regs["A"]}\np2: {",".join(str(n) for n in p2)}')
     # output

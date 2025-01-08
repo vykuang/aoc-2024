@@ -585,6 +585,12 @@ I looked for a hint: base 8. Something to do with the modulu 8 op it seems. The 
 - shift all digits one place left with wraparound
 - is it always last octal? only one shift? try with larger initial values
 - rule is only valid for sample input... new rule to be found for full input
+- len(output) == len(reg['A']) in octal
+- reversal of digits also seem likely - last digit of output will change when octal goes to the next `10`, e.g. from 17 to 20
+- but the 0th digit do not follow an obvious pattern
+    - e.g. from 60-67, 0th digit of output: `4,4,0,3,1,2,2,3` while 1st remained at `2`
+    - 70s: `0,4,1,1,1,2,2,3`
+    - 50s: `0,4,3,5,1,3,2,3`
 
 ## day 18 RAM run
 
