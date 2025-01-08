@@ -647,3 +647,31 @@ determine the first byte that will prevent any paths from reaching the end
 extend part i by changing the cheat timer
 
 ## day 21
+
+keypad - defaults to A
+
+```
+7 8 9
+4 5 6
+  0 A
+```
+
+dpad *n* - also defaults to `A`
+
+```
+  ^ A
+< v >
+```
+
+keypad <- radiation <- cold <- crowded <- ctrl
+
+find shortest sequence, and calc the complexity = num(presses) * num of code
+
+- 3 layers of dpad, then numpad
+- try 1 layer first
+- problem modeling:
+    - 2d grid of complex coord: button
+    - no pathfinding - take the manhattan dist between the two desired keys
+    - func to generate path of code on numpad
+    - recursively generate path of code on numpad (3 layers)\
+
