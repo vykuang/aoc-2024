@@ -4,6 +4,7 @@ import argparse
 import logging
 import sys
 from time import time
+from collections import deque
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -12,21 +13,23 @@ NUMPAD = {
         0:'7',1:'8',2:'9',
         1j:'4',1+1j:'5',2+1j:'6',
         2j:'1',1+2j:'2',2+2j:'3',
-        1+3j:'0',2+3j:'A'
+        3j:None, 1+3j:'0',2+3j:'A'
         }
 NUMPOS = {v:k for k, v in NUMPAD.items()}
 DPAD = {
-        1:'^',2:'A',
+        0:None,1:'^',2:'A',
         1j:'<',1+1j:'v',2+1j:'>'
         }
 DPOS = {v:k for k, v in DPAD.items()}
+BUTTON_MAP = {1:'>',-1:'<',1j:'^',-1j:'v'}
+
 def read_line(fpath: str):
     """Reads the input and yields each line"""
     fpath = Path(fpath)
     with open(fpath) as f:
         yield from f
 
-def dist_to_buttons(dist: complex, pos) -> str:
+def dist_to_buttons(dist: complex, pos, is_num: bool = False) -> str:
     """
     given a complex representing the manhattan dist
     return direction in terms of arrows
@@ -36,19 +39,26 @@ def dist_to_buttons(dist: complex, pos) -> str:
     if the next dir brings pos to 'gap', save that to a stack and
     process next dir in queue
     """
-    buttons = ''
-    while dist
+    moves = deque()
     if (x := int(dist.real)) > 0:
-        buttons += '>' * x
+        moves.extend([1]*x)
     else:
-        buttons += '<' * abs(x)
+        moves.extend([-1]*-x)
 
     if (y := int(dist.imag)) > 0:
-        buttons += 'v' * y
+        moves.extend([1j]*y)
     else:
-        buttons += '^' * abs(y)
-    #logger.debug(f'buttons: {buttons}')
-    return buttons
+        moves.extend([-1j]*-y)
+    buttons = []
+    while moves:
+        move = moves.popleft()
+        if (is_num and not NUMPAD[pos + move]) or (not is_num and not DPAD[pos+move]):
+            # shift to the back
+            moves.append(move)
+        else:
+            pos += move
+            buttons.append(BUTTON_MAP[move])
+    return ''.join(buttons)
 
 def press_numpad(code: str) -> list:
     """
@@ -60,7 +70,7 @@ def press_numpad(code: str) -> list:
     for key in code:
         dist = NUMPOS[key] - pos
         logger.debug(f'{NUMPAD[pos],key}: {dist}')
-        buttons += dist_to_buttons(dist)
+        buttons += dist_to_buttons(dist, pos, True)
         buttons += 'A'
         pos = NUMPOS[key]
     return buttons
@@ -74,7 +84,7 @@ def press_dpad(cmds: str) -> list:
     for press in cmds:
         dist = DPOS[press] - pos
         #logger.debug(f'{DPAD[pos],press}: {dist}')
-        buttons += dist_to_buttons(dist)
+        buttons += dist_to_buttons(dist, pos)
         buttons += 'A'
         pos = DPOS[press]
     return buttons

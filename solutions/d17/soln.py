@@ -32,7 +32,7 @@ class Computer:
         """
         self.ptr = 0
         self.output = []
-        while self.ptr < len(self.prog):
+        while self.ptr < len(self.prog)-1:
             opcode = self.prog[self.ptr]
             oprnd = self.prog[self.ptr+1]
             combo = self.combo(oprnd)
@@ -52,7 +52,7 @@ class Computer:
                     # how to implement jnz?
                     # instance need prog context
                     if self.regA != 0:
-
+                        # end of prog: 3,0 - prog repeats until regA = 0
                         # - 2 to offset the default +2
                         self.ptr = oprnd - 2
                 case 4:

@@ -679,5 +679,9 @@ find shortest sequence, and calc the complexity = num(presses) * num of code
     - 2d grid of complex coord: button
     - no pathfinding - take the manhattan dist between the two desired keys
     - func to generate path of code on numpad
-    - recursively generate path of code on numpad (3 layers)\
+    - recursively generate path of code on numpad (3 layers)
+
+### part i
+
+how to minimize the number of buttons? the layout of the dpad and the existence of the must-avoid gap implies there is some optimal path
 
