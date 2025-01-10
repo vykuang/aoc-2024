@@ -685,3 +685,4 @@ find shortest sequence, and calc the complexity = num(presses) * num of code
 
 how to minimize the number of buttons? the layout of the dpad and the existence of the must-avoid gap implies there is some optimal path
 
+- if both `x` and `y` dir do not go o
