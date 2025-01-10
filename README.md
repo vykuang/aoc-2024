@@ -685,4 +685,44 @@ find shortest sequence, and calc the complexity = num(presses) * num of code
 
 how to minimize the number of buttons? the layout of the dpad and the existence of the must-avoid gap implies there is some optimal path
 
-- if both `x` and `y` dir do not go o
+- if both `x` and `y` dir do not go over the gap, need to choose the one that returns a shorter sequence
+
+## day 22 monkey banana exchange
+
+### part i
+
+buyer's secret number to the next:
+
+- `secret` x 64, mix into `secret`, prune `secret`
+- `secret` / 32, floor, mix back into secret, prune
+- `secret` x 2048, mix back into secret, prune
+- mixing: `secret` = `secret` XOR val
+- prune: `secret` = `secret` % 16777216
+
+given initial `secret`s, sum the 2000th secret num
+
+### part ii
+
+- only the *ones* digit is the real price offered by buyer
+- look for a specifc seq. of 4 consec. changes along these digits, starting from the 2nd
+- need to determine a single seq. of 4 consec. changes of ones digit that maximizes return of bananas between all sellers
+- why go through all the operations? how do they affect the last digit? is there a cycle?
+
+## day 23 lan party
+
+### part i
+
+- input: list of pairwise connections
+- bidirectional
+- look for sets of 3: a trio where each is connected to both the other two
+- computers can belong to multiple such trios
+    - look for distincts when counting
+- look for names that start with `t`
+- input is list of edges
+- build graph: `defaultdict(list)`
+- bruuuute fooooorceee with immutable `frozenset`
+
+### part ii
+
+- look for the largest group that are all interconnected
+- ???
