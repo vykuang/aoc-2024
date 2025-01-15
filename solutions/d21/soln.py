@@ -5,6 +5,8 @@ import logging
 import sys
 from time import time
 from collections import deque
+from itertools import accumulate
+from functools import cache
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -21,7 +23,8 @@ DPAD = {
         1j:'<',1+1j:'v',2+1j:'>'
         }
 DPOS = {v:k for k, v in DPAD.items()}
-BUTTON_MAP = {1:'>',-1:'<',1j:'v',-1j:'^'}
+BUTTON_MAP = {1:'>',-1:'<',1j:'v',-1j:'^',0:'A'}
+DXY_MAP = {v:k for k, v in BUTTON_MAP.items()}
 
 def read_line(fpath: str):
     """Reads the input and yields each line"""
@@ -29,69 +32,60 @@ def read_line(fpath: str):
     with open(fpath) as f:
         yield from f
 
-def dist_to_buttons(dist: complex, pos, is_num: bool = False) -> str:
+@cache
+def dist_to_buttons(dest: complex, src: complex, layer: int) -> list:
     """
     given a complex representing the manhattan dist
-    return direction in terms of arrows
+    return _safe_ direction in terms of arrows
     e.g. 1+2j -> '>vv'
-    caveat: must avoid the 'gap', need current pos context
-    Moves in same dir must be contiguous chunks to avoid
-    switching back and forth
-    either go left/right first, or up/down first
-    If both dirs are valid, and neither go over the gap,
-    then both must be considered in order to choose the shortest
-    sequence...
+    @cache performed better than manual cache
     """
-    logger.debug(f'dist, pos: {dist, pos}')
-    # try left-right first
+    dist = dest - src
     xstep = 0 if not dist.real else int(dist.real / abs(dist.real))
-    ystep = 0 if not dist.imag else dist.imag / abs(dist.imag) * 1j
-    pad = NUMPAD if is_num else DPAD
+    ystep = 0 if not dist.imag else int(dist.imag / abs(dist.imag))
     xs = [] if not xstep else [BUTTON_MAP[xstep]] * int(abs(dist.real))
-    ys = [] if not ystep else [BUTTON_MAP[ystep]] * int(abs(dist.imag))
-    logger.debug(f'xstep, ystep {xstep, ystep}')
+    ys = [] if not ystep else [BUTTON_MAP[ystep*1j]] * int(abs(dist.imag))
+    # check for gaps
+    key_map = NUMPAD if layer == 0 else DPAD
     if xstep:
-        chkgap = [pad[pos + dxy] for dxy in range(xstep, int(dist.real)+xstep, xstep)]
-        logger.debug(f'chkgap {chkgap}')
-        if None in chkgap:
-            # move up-down first
-            buttons = ys + xs
-        else: # must compare x + y vs y + x
-            # but check if gap is in y-dir
-            chkgap = [pad[pos + dxy] for dxy in range(xstep, int(dist.real)+xstep, xstep)]
-            buttons = xs + ys
-    else:
-        buttons = ys
-    logger.debug(f'buttons {buttons}')
-    return ''.join(buttons)
-
-def press_numpad(code: str) -> list:
-    """
-    return movement and presses required for the code
-    """
-    pos = NUMPOS['A']
-    buttons = ''
-    #logger.debug(f'processing code {code}')
-    for key in code:
-        dist = NUMPOS[key] - pos
-        logger.debug(f'{NUMPAD[pos],key}: {dist}')
-        buttons += dist_to_buttons(dist, pos, True)
-        buttons += 'A'
-        pos = NUMPOS[key]
+        # xpath = list(accumulate(xs, lambda a, b: a + DXY_MAP[b], initial=src))
+        # if not all(key_map[xy] for xy in xpath):
+        for dx in range(xstep, int(dist.real)+xstep, xstep):
+            if key_map[src+dx]:
+                continue
+            # gap if x-dir first
+            return press_pad(tuple(ys+xs+['A']), layer=layer+1)
+    if ystep:
+        # ypath = list(accumulate(ys, lambda a, b: a + DXY_MAP[b], initial=src))
+        # if not all(key_map[xy] for xy in ypath):
+        for dy in range(ystep, int(dist.imag)+ystep, ystep):
+            if key_map[src+dy*1j]:
+                continue
+            return press_pad(tuple(xs+ys+['A']), layer=layer+1)  
+    a = press_pad(tuple(xs+ys+['A']), layer=layer+1)  
+    b = press_pad(tuple(ys+xs+['A']), layer=layer+1)
+    # if both safe, return shortest
+    buttons = a if len(a) <= len(b) else b
     return buttons
-    
-def press_dpad(cmds: str) -> list:
+
+@cache
+def press_pad(cmds: tuple, key: str = 'A', layer=0) -> list:
     """
     return movement and presses required for dpad
     """
-    pos = DPOS['A']
-    buttons = ''
+    logger.debug(f'layer {layer} cmds {cmds}')
+    # 3 for part i, 26 for part ii (25 from text, but program takes 26)
+    if layer == 18:
+        return cmds
+    pos_map = NUMPOS if layer == 0 else DPOS
+    pos = pos_map[key]
+    buttons = []
     for press in cmds:
-        dist = DPOS[press] - pos
-        #logger.debug(f'{DPAD[pos],press}: {dist}')
-        buttons += dist_to_buttons(dist, pos)
-        buttons += 'A'
-        pos = DPOS[press]
+        presses = dist_to_buttons(dest=pos_map[press], src=pos, layer=layer)
+        buttons += presses
+        #logger.debug(f'{key_map[pos]} -> {press}: {presses}\nbuttons {buttons}')
+        pos = pos_map[press]
+    #logger.debug(f'layer {layer} cmds {cmds} -> {buttons}')
     return buttons
 
     
@@ -105,25 +99,19 @@ def main(sample: bool, part_two: bool, loglevel: str):
     logger.debug(f"loglevel: {loglevel}")
     logger.info(f'Using {fp} for {"part 2" if part_two else "part 1"}')
 
-    # read input
-    codes = [line.strip() for line in read_line(fp)]
-
+    # read input; tuple over list for cache
+    codes = [tuple(line.strip()) for line in read_line(fp)]
     # execute
     cmplx = 0
     for code in codes:
         logger.info(f'{"#"*30} code {code}')
-        num = int(code[:3])
-        buttons = press_numpad(code)
-        logger.info(f'numpad buttons {buttons}')
-        logger.info(f'{"-"*30} first layer complete')
-        buttons = press_dpad(buttons)
-        # buttons = press_dpad(buttons)
+        num = int(''.join(code[:3]))
+        buttons = press_pad(code)
         cmplx += len(buttons) * num
-        logger.info(f'num: {num}')
-        logger.info(f'dpad movements {len(buttons), buttons}')
+        logger.info(f'complexity: {len(buttons), num}')
+        #input()
     # output
-    ans = cmplx
-    return ans
+    return cmplx
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
