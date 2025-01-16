@@ -726,3 +726,18 @@ given initial `secret`s, sum the 2000th secret num
 
 - look for the largest group that are all interconnected
 - ???
+
+## day 24 logic gates
+
+### part i
+
+regex and a `Gate` class to keep track of each gates inputs, op, and out, with a `wires` map to record wire value
+
+### part ii
+
+- whole system is supposed to add bits from `x` and `y` to `z`
+- find 4 pairs of swapped wires
+- work backwards
+- compare actual vs expected `z`
+- start with `z` outputs that do not match expected; initialize a queue
+
