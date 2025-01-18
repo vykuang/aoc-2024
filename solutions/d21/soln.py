@@ -26,6 +26,8 @@ DPOS = {v:k for k, v in DPAD.items()}
 BUTTON_MAP = {1:'>',-1:'<',1j:'v',-1j:'^',0:'A'}
 DXY_MAP = {v:k for k, v in BUTTON_MAP.items()}
 
+seq_cache = {}
+hits = 0
 def read_line(fpath: str):
     """Reads the input and yields each line"""
     fpath = Path(fpath)
@@ -40,6 +42,11 @@ def dist_to_buttons(dest: complex, src: complex, layer: int) -> list:
     e.g. 1+2j -> '>vv'
     @cache performed better than manual cache
     """
+    if (dest, src) in seq_cache:
+        seq = seq_cache[(dest, src)]
+        global hits
+        hits += 1
+        return press_pad(seq, layer=layer+1)
     dist = dest - src
     xstep = 0 if not dist.real else int(dist.real / abs(dist.real))
     ystep = 0 if not dist.imag else int(dist.imag / abs(dist.imag))
@@ -51,21 +58,27 @@ def dist_to_buttons(dest: complex, src: complex, layer: int) -> list:
         # xpath = list(accumulate(xs, lambda a, b: a + DXY_MAP[b], initial=src))
         # if not all(key_map[xy] for xy in xpath):
         for dx in range(xstep, int(dist.real)+xstep, xstep):
-            if key_map[src+dx]:
-                continue
-            # gap if x-dir first
-            return press_pad(tuple(ys+xs+['A']), layer=layer+1)
+            if not key_map[src+dx]:
+                seq = tuple(ys+xs+['A'])
+                seq_cache[(dest, src)] = seq
+                return press_pad(seq, layer=layer+1)
     if ystep:
         # ypath = list(accumulate(ys, lambda a, b: a + DXY_MAP[b], initial=src))
         # if not all(key_map[xy] for xy in ypath):
         for dy in range(ystep, int(dist.imag)+ystep, ystep):
-            if key_map[src+dy*1j]:
-                continue
-            return press_pad(tuple(xs+ys+['A']), layer=layer+1)  
+            if not key_map[src+dy*1j]:
+                seq = tuple(xs+ys+['A'])
+                seq_cache[(dest, src)] = seq
+                return press_pad(seq, layer=layer+1)  
+    # if both safe, return shortest
     a = press_pad(tuple(xs+ys+['A']), layer=layer+1)  
     b = press_pad(tuple(ys+xs+['A']), layer=layer+1)
-    # if both safe, return shortest
     buttons = a if len(a) <= len(b) else b
+    if len(a) <= len(b):
+        seq = tuple(xs+ys+['A'])
+    else:
+        seq = tuple(ys+xs+['A'])
+    seq_cache[(dest, src)] = seq
     return buttons
 
 @cache
@@ -73,9 +86,9 @@ def press_pad(cmds: tuple, key: str = 'A', layer=0) -> list:
     """
     return movement and presses required for dpad
     """
-    logger.debug(f'layer {layer} cmds {cmds}')
+    # logger.debug(f'layer {layer} cmds {cmds}')
     # 3 for part i, 26 for part ii (25 from text, but program takes 26)
-    if layer == 18:
+    if layer == 17:
         return cmds
     pos_map = NUMPOS if layer == 0 else DPOS
     pos = pos_map[key]
@@ -109,7 +122,6 @@ def main(sample: bool, part_two: bool, loglevel: str):
         buttons = press_pad(code)
         cmplx += len(buttons) * num
         logger.info(f'complexity: {len(buttons), num}')
-        #input()
     # output
     return cmplx
 
@@ -125,3 +137,4 @@ if __name__ == "__main__":
     tstop = time()
     logger.info(f"runtime: {(tstop-tstart)*1e3:.3f} ms")
     print('ans ', ans)
+    print('cache hits', hits)
